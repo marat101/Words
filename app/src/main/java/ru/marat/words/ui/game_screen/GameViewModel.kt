@@ -6,29 +6,39 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 data class GameState(
-    val words: List<String> = listOf("","","","","",""),
+    val words: List<String> = listOf("", "", "", "", "", ""),
     val attempt: Int = 0,
+    val inputIsEnabled: Boolean = true
 )
 
-class GameViewModel: ViewModel() {
+class GameViewModel : ViewModel() {
     private val _state = MutableStateFlow(GameState())
     val state = _state.asStateFlow()
 
     fun onTextChange(str: String) {
-        _state.update {
-            val list = it.words.toMutableList()
-            list[it.attempt] = str
-            it.copy(words = list)
+        if (str.length <= 5 && _state.value.inputIsEnabled)
+            _state.update {
+                val list = it.words.toMutableList()
+                list[it.attempt] = str
+                it.copy(words = list)
+            }
+    }
+
+    fun onEnterCLick() {
+        _state.value.apply {
+            if (words[attempt].length == 5 && attempt < 5)
+                _state.update { it.copy(attempt = it.attempt + 1) }
+            else
+                _state.update { it.copy(inputIsEnabled = it.words.any { word -> word.isBlank() }) }
         }
     }
-    fun onEnterCLick(){
-        _state.update { it.copy(attempt = it.attempt+1) }
-    }
-    fun onDeleteClick(){
-        _state.update {
-            val list = it.words.toMutableList()
-            list[it.attempt] = list[it.attempt].dropLast(1)
-            it.copy(words = list)
-        }
+
+    fun onDeleteClick() {
+        if (_state.value.inputIsEnabled)
+            _state.update {
+                val list = it.words.toMutableList()
+                list[it.attempt] = list[it.attempt].dropLast(1)
+                it.copy(words = list)
+            }
     }
 }
