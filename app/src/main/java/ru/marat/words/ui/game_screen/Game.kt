@@ -50,7 +50,6 @@ fun GameScreen(
     viewModel: GameViewModel = viewModel()
 ) {
     val density = LocalDensity.current
-    val context = LocalContext.current
     val state = viewModel.state.collectAsState()
     val requester = remember { FocusRequester() }
     BasicTextField(
