@@ -9,13 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
@@ -27,7 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.marat.cryptocurrencytrackapp.R
+import ru.marat.words.R
 import ru.marat.words.ui.theme.LocalColors
 
 
@@ -36,7 +34,9 @@ fun Keyboard(
     modifier: Modifier = Modifier,
     onClick: (Char) -> Unit,
     onDelete: () -> Unit,
-    onEnter: () -> Unit
+    onEnter: () -> Unit,
+    greenButtons: List<Char> = emptyList(),
+    yellowButtons: List<Char> = emptyList()
 ) {
     Column(
         modifier = Modifier

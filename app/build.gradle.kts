@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace ="ru.marat.cryptocurrencytrackapp"
+    namespace ="ru.marat.words"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "ru.headhunter.headhunterapp"
+        applicationId = "ru.headhunter.wordsapp"
         minSdk = 26
         targetSdk = 33
 
@@ -43,6 +43,13 @@ android {
 }
 
 dependencies {
+
+    // Network
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
