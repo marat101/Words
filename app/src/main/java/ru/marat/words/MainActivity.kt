@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import ru.marat.words.ui.game_screen.GameScreen
 import ru.marat.words.ui.game_screen.GameViewModel
+import ru.marat.words.ui.game_screen.network.WordsService
 import ru.marat.words.ui.theme.WordsTheme
 import ru.marat.words.ui.utils.AESEncyption
 
@@ -36,12 +37,15 @@ class MainActivity : ComponentActivity() {
         attempts.value = intent?.data?.pathSegments?.get(0)?.toInt()
         val api = (applicationContext as App).api
         setContent {
-            val scppe = rememberCoroutineScope()
             val worddd = remember { mutableStateOf("") }
             WordsTheme {
                 if (word.value.isNotBlank())
                     GameScreen(viewModel(initializer = {
-                        GameViewModel(attempts.value ?: 6, word.value.replace("ё", "е").uppercase())
+                        GameViewModel(
+                            attempts = attempts.value ?: 6,
+                            word = word.value.replace("ё", "е").uppercase(),
+                            wordsApi = WordsService(api)
+                        )
                     }))
                 else {
                     Column(
@@ -68,11 +72,8 @@ class MainActivity : ComponentActivity() {
                                 Text("Число попыток")
                             })
                         Button(onClick = {
-//                            val encrypted = AESEncyption.encrypt(wordState.value)?.replace("/","%2F")
-//                            clipManager.setText(AnnotatedString("poop.ru/${countState.value.toInt()}/$encrypted"))
-                            scppe.launch {
-                                kotlin.runCatching { worddd.value = api.searchWords(wordState.value).toString() }
-                            }
+                            val encrypted = AESEncyption.encrypt(wordState.value)?.replace("/","%2F")
+                            clipManager.setText(AnnotatedString("poop.ru/${countState.value.toInt()}/$encrypted"))
                         }) {
                             Text("Скопировать")
                         }

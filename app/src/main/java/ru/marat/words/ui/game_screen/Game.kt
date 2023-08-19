@@ -57,9 +57,7 @@ val Int.weight: FontWeight
 
 @Composable
 fun GameScreen(
-    viewModel: GameViewModel = viewModel(initializer = {
-        GameViewModel(10, "опаньки".uppercase())
-    })
+    viewModel: GameViewModel
 ) {
     val density = LocalDensity.current
     val state = viewModel.state.collectAsState()

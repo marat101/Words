@@ -1,10 +1,13 @@
 package ru.marat.words.ui.game_screen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import ru.marat.words.ui.game_screen.components.Letters
+import kotlinx.coroutines.launch
+import ru.marat.words.ui.game_screen.network.WordsService
+import ru.marat.words.ui.utils.checkLetters
 
 data class GameState(
     val words: List<Word>,
@@ -20,13 +23,17 @@ data class Word(
     val isUsed: Boolean = false
 )
 
-class GameViewModel(private val attempts: Int = 6, val word: String) : ViewModel() {
+class GameViewModel(
+    private val attempts: Int = 6,
+    val word: String,
+    private val wordsApi: WordsService
+) : ViewModel() {
     private val _state = MutableStateFlow(GameState(length = word.length, words = createList()))
     val state = _state.asStateFlow()
 
     fun onTextChange(str: String) {
         if (_state.value.gameOver) return
-        if (str.length <= word.length && str.uppercase().check())
+        if (str.length <= word.length && str.uppercase().checkLetters())
             _state.update {
                 val list = it.words.toMutableList()
 
@@ -48,11 +55,20 @@ class GameViewModel(private val attempts: Int = 6, val word: String) : ViewModel
                 }
 
                 words[attempt].word.length == word.length && attempt < attempts - 1 -> {
-                    _state.update {
-                        val list = _state.value.words.toMutableList()
-                        val item = list[it.attempt].copy(isUsed = true).setFieldsColors()
-                        list[it.attempt] = item
-                        it.copy(attempt = it.attempt + 1, words = list)
+                    viewModelScope.launch {
+                        kotlin.runCatching {
+                            if (wordsApi.getWords(words[attempt].word)
+                                    .contains(element = words[attempt].word)
+                            ) {
+                                _state.update {
+                                    val list = _state.value.words.toMutableList()
+                                    val item =
+                                        list[it.attempt].copy(isUsed = true).setFieldsColors()
+                                    list[it.attempt] = item
+                                    it.copy(attempt = it.attempt + 1, words = list)
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -107,14 +123,5 @@ class GameViewModel(private val attempts: Int = 6, val word: String) : ViewModel
 
     private fun List<Word>.isGameOver() = _state.value.words.mapIndexed { index, word ->
         if (word.word.isNotBlank()) word.copy(isUsed = true).setFieldsColors() else word
-    }
-    private fun String.check(): Boolean {
-        if (this.isBlank()) return true
-        val letters = Letters.firstRow + Letters.secondRow + Letters.thirdRow
-        val word = this.lowercase().toList()
-        word.forEach { letter ->
-            if (!letters.contains(letter)) return false
-        }
-        return true
     }
 }
