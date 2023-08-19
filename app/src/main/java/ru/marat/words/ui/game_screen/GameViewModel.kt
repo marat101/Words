@@ -1,5 +1,7 @@
 package ru.marat.words.ui.game_screen
 
+import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +15,14 @@ data class GameState(
     val words: List<Word>,
     val attempt: Int = 0,
     val gameOver: Boolean = false,
-    val length: Int
+    val length: Int,
+    val keyboardColors: KeyboardState = KeyboardState()
+)
+
+data class KeyboardState(
+    val greenLetters: Set<Char> = emptySet(),
+    val yellowLetters: Set<Char> = emptySet(),
+    val missingLetters: Set<Char> = emptySet()
 )
 
 data class Word(
@@ -117,6 +126,20 @@ class GameViewModel(
                     }
                 }
             }
+        }
+        _state.update {
+            val missingLetters = it.keyboardColors.missingLetters +
+                    this.word.filterIndexed { index, _ -> !(foundGrn + foundYlw).contains(element = index) }
+                        .toSet()
+            val greenLetters = it.keyboardColors.greenLetters +
+                    foundGrn.map { this.word[it] }.toSet()
+            val yellowLetters = it.keyboardColors.yellowLetters +
+                    foundYlw.map { this.word[it] }.toSet()
+            Log.e("TAGTAG",missingLetters.toString())
+            Log.e("TAGTAG",greenLetters.toString())
+            Log.e("TAGTAG",yellowLetters.toString())
+
+            it.copy(keyboardColors = KeyboardState(greenLetters, yellowLetters, missingLetters))
         }
         return this.copy(ylw = foundYlw, grn = foundGrn)
     }

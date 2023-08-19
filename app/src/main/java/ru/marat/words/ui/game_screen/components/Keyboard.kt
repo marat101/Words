@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.marat.words.R
+import ru.marat.words.ui.game_screen.KeyboardState
 import ru.marat.words.ui.theme.LocalColors
 
 
@@ -35,9 +36,17 @@ fun Keyboard(
     onClick: (Char) -> Unit,
     onDelete: () -> Unit,
     onEnter: () -> Unit,
-    greenButtons: List<Char> = emptyList(),
-    yellowButtons: List<Char> = emptyList()
+    state: KeyboardState = KeyboardState()
 ) {
+    val color: @Composable (Char) -> Color = {
+        when {
+            state.greenLetters.contains(it.uppercaseChar()) -> LocalColors.current.color3
+            state.yellowLetters.contains(it.uppercaseChar()) -> LocalColors.current.color4
+            state.missingLetters.contains(it.uppercaseChar()) -> LocalColors.current.color6
+            else -> LocalColors.current.color5
+        }
+    }
+
     Column(
         modifier = Modifier
             .widthIn(max = 400.dp)
@@ -45,22 +54,42 @@ fun Keyboard(
             .then(modifier)
     ) {
         Row(Modifier.weight(1f)) {
-            Letters.firstRow.forEach { Button(onClick = { onClick(it) }, it.toString()) }
+            Letters.firstRow.forEach {
+                Button(
+                    onClick = { onClick(it) },
+                    letter = it.toString(),
+                    color = color(it)
+                )
+            }
         }
         Row(Modifier.weight(1f)) {
-            Letters.secondRow.forEach { Button(onClick = { onClick(it) }, it.toString()) }
+            Letters.secondRow.forEach {
+                Button(
+                    onClick = { onClick(it) },
+                    it.toString(),
+                    color = color(it)
+                )
+            }
         }
         Row(Modifier.weight(1f)) {
             Button(onClick = { onDelete() }, content = {
                 Image(
-                    modifier = Modifier.width(20.dp).height(15.dp),
+                    modifier = Modifier
+                        .width(20.dp)
+                        .height(15.dp),
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "delete",
                     contentScale = ContentScale.FillBounds
                 )
             })
-            Letters.thirdRow.forEach { Button(onClick = { onClick(it) }, it.toString()) }
-            Button(onClick = { onEnter() }, "ВВОД", 10.sp)
+            Letters.thirdRow.forEach {
+                Button(
+                    onClick = { onClick(it) },
+                    it.toString(),
+                    color = color(it)
+                )
+            }
+            Button(onClick = { onEnter() }, "ВВОД", fontSize = 10.sp)
         }
     }
 }
@@ -69,6 +98,7 @@ fun Keyboard(
 private fun RowScope.Button(
     onClick: () -> Unit,
     letter: String? = null,
+    color: Color = LocalColors.current.color5,
     fontSize: TextUnit = TextUnit.Unspecified,
     content: (@Composable () -> Unit)? = null
 ) {
@@ -77,7 +107,7 @@ private fun RowScope.Button(
             .weight(1f)
             .fillMaxHeight()
             .padding(1.dp)
-            .background(LocalColors.current.color5, RoundedCornerShape(3.dp))
+            .background(color, RoundedCornerShape(3.dp))
             .clickable(
                 interactionSource = MutableInteractionSource(),
                 indication = rememberRipple(color = Color.White)

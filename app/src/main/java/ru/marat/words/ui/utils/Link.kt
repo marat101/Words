@@ -47,8 +47,7 @@ object AESEncyption {
             val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding");
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivParameterSpec);
             return  String(cipher.doFinal(Base64.decode(strToDecrypt, Base64.DEFAULT)))
-        }
-        catch (e : Exception) {
+        } catch (e : Exception) {
             println("Error while decrypting: $e");
         }
         return null

@@ -142,7 +142,8 @@ fun GameScreen(
                     viewModel.onTextChange(state.value.words[state.value.attempt].word + it.toString())
             },
             onDelete = { viewModel.onDeleteClick() },
-            onEnter = { viewModel.onEnterCLick() }
+            onEnter = { viewModel.onEnterCLick() },
+            state = state.value.keyboardColors
         )
         Spacer(
             modifier = Modifier

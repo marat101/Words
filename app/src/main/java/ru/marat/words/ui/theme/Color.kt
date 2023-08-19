@@ -7,5 +7,6 @@ data class WordsColors(
     val color2: Color,
     val color3: Color,
     val color4: Color,
-    val color5: Color
+    val color5: Color,
+    val color6: Color
 )

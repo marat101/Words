@@ -28,7 +28,8 @@ fun WordsTheme(
         color2 = Color(0xFFFFFFFF),
         color3 = Color(0xFF479C26),
         color4 = Color(0xFF9C7526),
-        color5 = Color(0xFFB9B3B3)
+        color5 = Color(0xFFB9B3B3),
+        color6 = Color(0xFF757575),
     )
 
     CompositionLocalProvider(
