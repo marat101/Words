@@ -1,8 +1,8 @@
-package ru.marat.words.ui.game_screen.network
+package ru.marat.words.network
 
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.marat.words.ui.game_screen.network.model.Words
+import ru.marat.words.network.model.Words
 
 interface WordsApi {
     @GET("suggestions")

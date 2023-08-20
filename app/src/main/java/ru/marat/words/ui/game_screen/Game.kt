@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.marat.words.ui.game_screen.components.Keyboard
+import ru.marat.words.ui.game_screen.components.LoseDialog
 import ru.marat.words.ui.theme.LocalColors
 
 
@@ -76,6 +77,8 @@ fun GameScreen(
             viewModel.onTextChange(it)
         }
     )
+
+    LoseDialog(answer = viewModel.word, visible = state.value.dialog) {viewModel.onDismissDialog()}
 
     Column(
         modifier = Modifier

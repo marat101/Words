@@ -1,4 +1,4 @@
-package ru.marat.words.ui.game_screen.network.model
+package ru.marat.words.network.model
 
 import kotlinx.serialization.Serializable
 

@@ -1,4 +1,4 @@
-package ru.marat.words.ui.game_screen.network
+package ru.marat.words.network
 
 import android.util.Log
 import ru.marat.words.ui.utils.checkLetters

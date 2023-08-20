@@ -1,14 +1,13 @@
 package ru.marat.words.ui.game_screen
 
 import android.util.Log
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.marat.words.ui.game_screen.network.WordsService
+import ru.marat.words.network.WordsService
 import ru.marat.words.ui.utils.checkLetters
 
 data class GameState(
@@ -16,7 +15,8 @@ data class GameState(
     val attempt: Int = 0,
     val gameOver: Boolean = false,
     val length: Int,
-    val keyboardColors: KeyboardState = KeyboardState()
+    val keyboardColors: KeyboardState = KeyboardState(),
+    val dialog: Boolean = false
 )
 
 data class KeyboardState(
@@ -87,14 +87,14 @@ class GameViewModel(
                             !it.words.any { word -> word.word.isBlank() || word.word.length < this@GameViewModel.word.length }
                         it.copy(
                             words = if (isgameover) it.words.isGameOver() else it.words,
-                            gameOver = isgameover
+                            gameOver = isgameover,
+                            dialog = isgameover
                         )
                     }
                 }
             }
         }
     }
-
     fun onDeleteClick() {
         if (!_state.value.gameOver)
             _state.update {
@@ -103,7 +103,7 @@ class GameViewModel(
                 it.copy(words = list)
             }
     }
-
+    fun onDismissDialog() = _state.update { it.copy(dialog = false) }
     private fun createList() = mutableListOf<Word>().apply {
         for (i in 1..attempts)
             add(Word())

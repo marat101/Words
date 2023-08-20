@@ -12,17 +12,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.launch
 import ru.marat.words.ui.game_screen.GameScreen
 import ru.marat.words.ui.game_screen.GameViewModel
-import ru.marat.words.ui.game_screen.network.WordsService
+import ru.marat.words.network.WordsService
 import ru.marat.words.ui.theme.WordsTheme
 import ru.marat.words.ui.utils.AESEncyption
 
