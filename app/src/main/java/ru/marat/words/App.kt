@@ -1,14 +1,16 @@
 package ru.marat.words
 
 import android.app.Application
+import androidx.room.Room
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import ru.marat.words.database.WordsDatabase
 import ru.marat.words.network.WordsApi
 
 class App : Application() {
     lateinit var api: WordsApi
-
+    lateinit var db: WordsDatabase
     override fun onCreate() {
         super.onCreate()
         api = Retrofit.Builder()
@@ -16,5 +18,9 @@ class App : Application() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create()
+        db = Room
+            .databaseBuilder(this,WordsDatabase::class.java,"words")
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }

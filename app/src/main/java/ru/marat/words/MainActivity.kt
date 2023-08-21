@@ -34,6 +34,8 @@ class MainActivity : ComponentActivity() {
         }
         attempts.value = intent?.data?.pathSegments?.get(0)?.toInt()
         val api = (applicationContext as App).api
+        val db = (applicationContext as App).db
+
         setContent {
             val worddd = remember { mutableStateOf("") }
             WordsTheme {
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
                         GameViewModel(
                             attempts = attempts.value ?: 6,
                             word = word.value.replace("ё", "е").uppercase(),
-                            wordsApi = WordsService(api)
+                            wordsApi = WordsService(api, db.dao())
                         )
                     }))
                 else {
