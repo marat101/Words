@@ -77,7 +77,6 @@ class MainActivity : ComponentActivity() {
                         }) {
                             Text("Скопировать")
                         }
-                        Text(text = worddd.value)
                     }
                 }
             }

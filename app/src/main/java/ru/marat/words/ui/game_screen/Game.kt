@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.marat.words.ui.game_screen.components.Keyboard
 import ru.marat.words.ui.game_screen.components.LoseDialog
+import ru.marat.words.ui.game_screen.components.Notification
 import ru.marat.words.ui.theme.LocalColors
 
 
@@ -78,80 +79,87 @@ fun GameScreen(
             viewModel.onTextChange(it)
         }
     )
-
     LoseDialog(
         answer = viewModel.word,
         visible = state.value.dialog
     ) { viewModel.onDismissDialog() }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        LazyColumn(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .weight(1f)
-                .clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null
-                ) {
-                    focus.clearFocus()
-                    requester.requestFocus()
-                },
-            contentPadding = PaddingValues(6.dp)
+                .fillMaxSize()
         ) {
-            itemsIndexed(state.value.words) { index, word ->
-                val height = remember { mutableFloatStateOf(0f) }
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    repeat(state.value.length) { iteration ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(2.dp)
-                                .height(height.floatValue.dp)
-                                .border(
-                                    3.dp,
-                                    if (state.value.attempt > index) Color.Transparent else LocalColors.current.color5
-                                )
-                                .background(
-                                    if (word.isUsed) {
-                                        when {
-                                            word.grn.contains(iteration) -> LocalColors.current.color3
-                                            word.ylw.contains(iteration) -> LocalColors.current.color4
-                                            else -> LocalColors.current.color5
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(
+                        interactionSource = MutableInteractionSource(),
+                        indication = null
+                    ) {
+                        focus.clearFocus()
+                        requester.requestFocus()
+                    },
+                contentPadding = PaddingValues(6.dp)
+            ) {
+                itemsIndexed(state.value.words) { index, word ->
+                    val height = remember { mutableFloatStateOf(0f) }
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        repeat(state.value.length) { iteration ->
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(2.dp)
+                                    .height(height.floatValue.dp)
+                                    .border(
+                                        3.dp,
+                                        if (state.value.attempt > index) Color.Transparent else LocalColors.current.color5
+                                    )
+                                    .background(
+                                        if (word.isUsed) {
+                                            when {
+                                                word.grn.contains(iteration) -> LocalColors.current.color3
+                                                word.ylw.contains(iteration) -> LocalColors.current.color4
+                                                else -> LocalColors.current.color5
+                                            }
+                                        } else {
+                                            Color.Transparent
                                         }
-                                    } else {
-                                        Color.Transparent
-                                    }
-                                )
-                                .onGloballyPositioned {
-                                    height.floatValue = density.run { it.size.width.toDp().value }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
+                                    )
+                                    .onGloballyPositioned {
+                                        height.floatValue =
+                                            density.run { it.size.width.toDp().value }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
 
-                            Letter(string = if (word.word.length >= iteration+1) word.word[iteration].uppercase() else "",
-                                size = height.floatValue.sp/1.4f
-                            )
+                                Letter(
+                                    string = if (word.word.length >= iteration + 1) word.word[iteration].uppercase() else "",
+                                    size = height.floatValue.sp / 1.4f
+                                )
+                            }
                         }
                     }
                 }
             }
+            Keyboard(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = {
+                    if (!state.value.gameOver)
+                        viewModel.onTextChange(state.value.words[state.value.attempt].word + it.toString())
+                },
+                onDelete = { viewModel.onDeleteClick() },
+                onEnter = { viewModel.onEnterCLick() },
+                state = state.value.keyboardColors
+            )
+            Spacer(
+                modifier = Modifier
+                    .heightIn(min = 10.dp)
+            )
         }
-        Keyboard(
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            onClick = {
-                if (!state.value.gameOver)
-                    viewModel.onTextChange(state.value.words[state.value.attempt].word + it.toString())
-            },
-            onDelete = { viewModel.onDeleteClick() },
-            onEnter = { viewModel.onEnterCLick() },
-            state = state.value.keyboardColors
-        )
-        Spacer(
-            modifier = Modifier
-                .heightIn(min = 10.dp)
-        )
+        Notification(
+            modifier = Modifier.align(Alignment.TopCenter),
+            text = state.value.notificationText,
+            visible = state.value.notification
+        ) { viewModel.onHideNotification() }
     }
 }
 

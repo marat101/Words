@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.marat.words.network.WordsService
 import ru.marat.words.ui.utils.checkLetters
+import java.net.UnknownHostException
 
 data class GameState(
     val words: List<Word>,
@@ -17,7 +18,9 @@ data class GameState(
     val gameOver: Boolean = false,
     val length: Int,
     val keyboardColors: KeyboardState = KeyboardState(),
-    val dialog: Boolean = false
+    val dialog: Boolean = false,
+    val notification: Boolean = false,
+    val notificationText: String = "",
 )
 
 data class KeyboardState(
@@ -77,6 +80,20 @@ class GameViewModel(
                                     list[it.attempt] = item
                                     it.copy(attempt = it.attempt + 1, words = list)
                                 }
+                            } else {
+                                _state.update {
+                                    it.copy(
+                                        notification = true,
+                                        notificationText = "В словаре игры нет такого слова! Попробуйте другое."
+                                    )
+                                }
+                            }
+                        }.getOrElse { throwable ->
+                            _state.update {
+                                it.copy(
+                                    notification = true,
+                                    notificationText = "Произошла ошибка. " + if(throwable is UnknownHostException) "Проверьте подключение к интернету." else ""
+                                )
                             }
                         }
                     }
@@ -96,6 +113,11 @@ class GameViewModel(
             }
         }
     }
+
+    fun onHideNotification() {
+        _state.update { it.copy(notification = false) }
+    }
+
     fun onDeleteClick() {
         if (!_state.value.gameOver)
             _state.update {
@@ -104,6 +126,7 @@ class GameViewModel(
                 it.copy(words = list)
             }
     }
+
     fun onDismissDialog() = _state.update { it.copy(dialog = false) }
     private fun createList() = mutableListOf<Word>().apply {
         for (i in 1..attempts)
@@ -136,9 +159,9 @@ class GameViewModel(
                     foundGrn.map { this.word[it] }.toSet()
             val yellowLetters = it.keyboardColors.yellowLetters +
                     foundYlw.map { this.word[it] }.toSet()
-            Log.e("TAGTAG",missingLetters.toString())
-            Log.e("TAGTAG",greenLetters.toString())
-            Log.e("TAGTAG",yellowLetters.toString())
+            Log.e("TAGTAG", missingLetters.toString())
+            Log.e("TAGTAG", greenLetters.toString())
+            Log.e("TAGTAG", yellowLetters.toString())
 
             it.copy(keyboardColors = KeyboardState(greenLetters, yellowLetters, missingLetters))
         }
