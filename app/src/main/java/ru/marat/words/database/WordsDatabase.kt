@@ -18,7 +18,6 @@ abstract class WordsDatabase:RoomDatabase() {
 class Converter() {
     private val gson = Gson()
     private val type = object : TypeToken<List<String>>() {}.type
-    private val dtype = object : TypeToken<List<String>>() {}.type
 
     @TypeConverter
     fun fromListToJson(list: List<String>): String{
@@ -27,14 +26,5 @@ class Converter() {
     @TypeConverter
     fun fromJsonToList(list: String): List<String>{
         return gson.fromJson(list, type)
-    }
-
-    @TypeConverter
-    fun fromDataToJson(list: WordsData): String{
-        return gson.toJson(list, dtype)
-    }
-    @TypeConverter
-    fun fromJsonToData(list: String): WordsData{
-        return gson.fromJson(list, dtype)
     }
 }

@@ -3,6 +3,7 @@ package ru.marat.words.ui.game_screen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -64,7 +65,7 @@ class GameViewModel(
                 }
 
                 words[attempt].word.length == word.length && attempt < attempts - 1 -> {
-                    viewModelScope.launch {
+                    viewModelScope.launch(Dispatchers.IO) {
                         kotlin.runCatching {
                             if (wordsApi.getWords(words[attempt].word)
                                     .contains(element = words[attempt].word)

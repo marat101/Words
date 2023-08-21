@@ -7,7 +7,10 @@ import ru.marat.words.ui.utils.checkLetters
 
 class WordsService(private val api: WordsApi, private val db: WordsDao) {
     suspend fun getWords(searchWord: String): List<String> {
-        val savedWords = kotlin.runCatching { db.getWordsByKey(searchWord) }.getOrNull()
+        val savedWords = kotlin.runCatching { db.getWordsByKey(searchWord) }.getOrElse {
+            it.printStackTrace()
+            null
+        }
         if (savedWords != null && (System.currentTimeMillis() - 7889238000) < savedWords.date) {
             return savedWords.response
         }
@@ -21,8 +24,8 @@ class WordsService(private val api: WordsApi, private val db: WordsDao) {
 
     private fun saveWithKey(key: String, words: List<String>) {
         kotlin.runCatching { db.insert(WordsData(id = key, words, System.currentTimeMillis())) }
-            .onFailure {//TODO
-                Log.e("TAGTAG", "")
+            .onFailure {
+                it.printStackTrace()
             }
     }
 }
