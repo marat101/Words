@@ -11,3 +11,9 @@ fun String.checkLetters(): Boolean {
     }
     return true
 }
+
+fun String.removeSpaces(): String {
+    return buildString {
+        this.forEach { if (it.toString().isNotBlank()) append(it) }
+    }
+}
