@@ -1,5 +1,6 @@
 package ru.marat.words.ui.utils
 
+import android.util.Log
 import ru.marat.words.ui.game_screen.components.Letters
 
 fun String.checkLetters(): Boolean {
@@ -10,10 +11,4 @@ fun String.checkLetters(): Boolean {
         if (!letters.contains(letter)) return false
     }
     return true
-}
-
-fun String.removeSpaces(): String {
-    return buildString {
-        this.forEach { if (it.toString().isNotBlank()) append(it) }
-    }
 }
