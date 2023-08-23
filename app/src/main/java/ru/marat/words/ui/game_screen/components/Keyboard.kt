@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.TextUnit
@@ -79,7 +80,8 @@ fun Keyboard(
                         .height(15.dp),
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "delete",
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.FillBounds,
+                    colorFilter = ColorFilter.tint(LocalColors.current.color1)
                 )
             })
             Letters.thirdRow.forEach {
@@ -110,7 +112,7 @@ private fun RowScope.Button(
             .background(color, RoundedCornerShape(3.dp))
             .clickable(
                 interactionSource = MutableInteractionSource(),
-                indication = rememberRipple(color = Color.White)
+                indication = rememberRipple(color = LocalColors.current.color1)
             ) { onClick() },
         contentAlignment = Alignment.Center
     ) {

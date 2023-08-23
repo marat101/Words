@@ -95,6 +95,6 @@ fun Letter(string: String, size: TextUnit) {
         fontWeight = 700.weight,
         textAlign = TextAlign.Center,
         lineHeight = 0.sp,
-        softWrap = false
+        softWrap = false,
     )
 }

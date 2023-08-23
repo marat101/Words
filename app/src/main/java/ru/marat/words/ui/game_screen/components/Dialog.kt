@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import ru.marat.words.ui.game_screen.GameViewModel
 import ru.marat.words.ui.game_screen.weight
+import ru.marat.words.ui.theme.LocalColors
 
 @Composable
 fun LoseDialog(
@@ -26,7 +27,7 @@ fun LoseDialog(
 
     if (visible)
         Dialog(onDismissRequest = onDismissRequest) {
-            Column(modifier = Modifier.background(Color.White, RoundedCornerShape(12.dp)).padding(36.dp),horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.background(LocalColors.current.dialogBackground, RoundedCornerShape(12.dp)).padding(36.dp),horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     textAlign = TextAlign.Center,
                     text = "Вы проиграли,\nправильный ответ:",

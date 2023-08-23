@@ -1,5 +1,6 @@
 package ru.marat.words.ui.game_screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,7 @@ import ru.marat.words.ui.game_screen.components.Keyboard
 import ru.marat.words.ui.game_screen.components.LoseDialog
 import ru.marat.words.ui.game_screen.components.Notification
 import ru.marat.words.ui.game_screen.components.Words
+import ru.marat.words.ui.theme.LocalColors
 
 
 val Int.weight: FontWeight
@@ -52,7 +54,7 @@ fun GameScreen(
         answer = viewModel.word,
         visible = state.value.dialog
     ) { viewModel.onDismissDialog() }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(LocalColors.current.color2)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

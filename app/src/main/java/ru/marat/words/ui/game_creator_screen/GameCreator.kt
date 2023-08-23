@@ -3,11 +3,13 @@ package ru.marat.words.ui.game_creator_screen
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
@@ -23,6 +25,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import ru.marat.words.ui.theme.LocalColors
 import ru.marat.words.ui.utils.AESEncyption
 import ru.marat.words.ui.utils.checkLetters
 import ru.marat.words.ui.utils.withoutWhitespaces
@@ -36,7 +39,9 @@ fun GameCreator(){
     val clipBoardManager = LocalClipboardManager.current
     val context = LocalContext.current
     Column(
-        Modifier.fillMaxSize(),
+        Modifier
+            .fillMaxSize()
+            .background(LocalColors.current.color2),
         verticalArrangement = Arrangement.spacedBy(
             10.dp,
             Alignment.CenterVertically
@@ -56,13 +61,14 @@ fun GameCreator(){
             colors = TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent
+                errorIndicatorColor = Color.Transparent,
+                textColor = LocalColors.current.color1,
+                backgroundColor = LocalColors.current.color7
             ),
             singleLine = true,
             maxLines = 1,
             shape = CircleShape,
         )
-//                        NumberItem(countState.value, onChange = {countState.value = it})
         val state = remember { mutableStateOf(false) }
         NumberItem(
             expanded = state.value,
@@ -72,7 +78,10 @@ fun GameCreator(){
             onChange = { countState.intValue = it })
         Button(onClick = {
             context.createGame(wordState.value, countState.intValue, clipboardManager = clipBoardManager, onError =  { isError.value = true })
-        }) {
+        },
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color(0xFFDCBC3D)
+        )) {
             Text("Скопировать")
         }
     }

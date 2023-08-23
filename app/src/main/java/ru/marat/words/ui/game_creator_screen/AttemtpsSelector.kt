@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -26,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -39,10 +41,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.marat.words.R
 import ru.marat.words.ui.game_screen.weight
+import ru.marat.words.ui.theme.LocalColors
 
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun NumberItem(
     expanded: Boolean,
     onDismiss: () -> Unit,
@@ -52,20 +54,33 @@ fun NumberItem(
 ) {
 
     val conf = LocalConfiguration.current
-    Row(modifier = Modifier.width(conf.screenWidthDp.dp/ 1.5f),
-    verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.Center) {
+    Row(
+        modifier = Modifier.width(conf.screenWidthDp.dp / 1.5f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
         Text(text = "Количество попыток")
         Spacer(modifier = Modifier.width(55.dp))
-        IconButton(modifier = Modifier.background(Color.LightGray, CircleShape),onClick = onClick) {
+        IconButton(
+            modifier = Modifier.background(LocalColors.current.color7, CircleShape),
+            onClick = onClick
+        ) {
             Text(
                 text = selected.toString(),
                 fontSize = 25.sp,
                 fontWeight = 600.weight,
-                color = Color.Black
+                color = LocalColors.current.color1
             )
         }
-        DropdownMenu(offset = DpOffset(Int.MAX_VALUE.dp, 0.dp),modifier = Modifier.height((conf.screenHeightDp / 3).dp),expanded = expanded, onDismissRequest = onDismiss) {
+        DropdownMenu(
+            offset = DpOffset(Int.MAX_VALUE.dp, 0.dp),
+            modifier = Modifier
+                .height((conf.screenHeightDp / 3).dp)
+                .background(LocalColors.current.dialogBackground, RoundedCornerShape(6.dp))
+                .clip(RoundedCornerShape(6.dp)),
+            expanded = expanded,
+            onDismissRequest = onDismiss
+        ) {
             repeat(19) {
                 DropdownMenuItem(onClick = {
                     onChange(it + 2)
@@ -79,7 +94,6 @@ fun NumberItem(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun NumberItem(count: Int, onChange: (Int) -> Unit) {
     val config = LocalConfiguration.current
     val listState = rememberLazyListState(6)
@@ -93,7 +107,7 @@ fun NumberItem(count: Int, onChange: (Int) -> Unit) {
             val prev = if (count - 1 > 2) count - 1 else count
             onChange(prev)
         }) {
-            Icon(painter = painterResource(id = R.drawable.arrow_left), contentDescription = "")
+//            Icon(painter = painterResource(id = R.drawable.arrow_left), contentDescription = "")
         }
         LazyRow(
             modifier = Modifier.weight(1f),
@@ -116,7 +130,7 @@ fun NumberItem(count: Int, onChange: (Int) -> Unit) {
             val next = if (count + 1 < 12) count + 1 else count
             onChange(next)
         }) {
-            Icon(painter = painterResource(id = R.drawable.arrow_right), contentDescription = "")
+//            Icon(painter = painterResource(id = R.drawable.arrow_right), contentDescription = "")
         }
     }
 }
