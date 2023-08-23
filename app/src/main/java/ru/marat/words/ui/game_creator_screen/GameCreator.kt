@@ -25,6 +25,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import ru.marat.words.ui.utils.AESEncyption
 import ru.marat.words.ui.utils.checkLetters
+import ru.marat.words.ui.utils.withoutWhitespaces
 
 
 @Composable
@@ -77,9 +78,8 @@ fun GameCreator(){
     }
 }
 private fun Context.createGame(word: String, count: Int, onError: () -> Unit, clipboardManager: ClipboardManager){
-    val w = word.replace("\\s".toRegex(), "").trim()
-    Log.e("TAGTAG", w)
-    Log.e("TAGTAG", w.length.toString())
+    val w = word.withoutWhitespaces
+
     if (!w.checkLetters()) {
         onError()
         Toast.makeText(

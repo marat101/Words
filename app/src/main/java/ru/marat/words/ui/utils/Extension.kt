@@ -12,3 +12,6 @@ fun String.checkLetters(): Boolean {
     }
     return true
 }
+
+val String.withoutWhitespaces: String
+    get() = this.replace("\\s".toRegex(), "").trim()
