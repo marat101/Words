@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.marat.words.network.WordsService
 import ru.marat.words.ui.utils.checkLetters
 import java.net.UnknownHostException
@@ -43,6 +46,7 @@ class GameViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameState(length = word.length, words = createList()))
     val state = _state.asStateFlow()
+    private var checkInProgress: Boolean = false
 
     fun onTextChange(str: String) {
         if (_state.value.gameOver) return
@@ -57,26 +61,27 @@ class GameViewModel(
 
     fun onEnterCLick() {
         if (_state.value.gameOver) return
-        _state.value.apply {
-            when {
-                words[attempt].word == word -> _state.update {
-                    it.copy(
-                        gameOver = true,
-                        words = it.words.isGameOver(),
-                        attempt = it.attempt + 1
-                    )
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.value.apply {
+                when {
+                    words[attempt].word == word -> _state.update {
+                        it.copy(
+                            gameOver = true,
+                            words = it.words.isGameOver(),
+                            attempt = it.attempt + 1
+                        )
+                    }
 
-                words[attempt].word.length == word.length && attempt < attempts - 1 -> {
-                    viewModelScope.launch(Dispatchers.IO) {
+                    words[attempt].word.length == word.length && attempt < attempts - 1 -> {
+                        if (checkInProgress) return@launch
                         kotlin.runCatching {
+                            checkInProgress = true
                             if (wordsApi.getWords(words[attempt].word)
                                     .contains(element = words[attempt].word)
                             ) {
                                 _state.update {
                                     val list = _state.value.words.toMutableList()
-                                    val item =
-                                        list[it.attempt].copy(isUsed = true).setFieldsColors()
+                                    val item = list[it.attempt].copy(isUsed = true).setFieldsColors()
                                     list[it.attempt] = item
                                     it.copy(attempt = it.attempt + 1, words = list)
                                 }
@@ -88,26 +93,28 @@ class GameViewModel(
                                     )
                                 }
                             }
+                            checkInProgress = false
                         }.getOrElse { throwable ->
                             _state.update {
                                 it.copy(
                                     notification = true,
-                                    notificationText = "Произошла ошибка. " + if(throwable is UnknownHostException) "Проверьте подключение к интернету." else ""
+                                    notificationText = "Произошла ошибка. " + if (throwable is UnknownHostException) "Проверьте подключение к интернету." else ""
                                 )
                             }
+                            checkInProgress = false
                         }
                     }
-                }
 
-                else -> {
-                    _state.update {
-                        val isgameover =
-                            !it.words.any { word -> word.word.isBlank() || word.word.length < this@GameViewModel.word.length }
-                        it.copy(
-                            words = if (isgameover) it.words.isGameOver() else it.words,
-                            gameOver = isgameover,
-                            dialog = isgameover
-                        )
+                    else -> {
+                        _state.update {
+                            val isgameover =
+                                !it.words.any { word -> word.word.isBlank() || word.word.length < this@GameViewModel.word.length }
+                            it.copy(
+                                words = if (isgameover) it.words.isGameOver() else it.words,
+                                gameOver = isgameover,
+                                dialog = isgameover
+                            )
+                        }
                     }
                 }
             }
@@ -159,9 +166,6 @@ class GameViewModel(
                     foundGrn.map { this.word[it] }.toSet()
             val yellowLetters = it.keyboardColors.yellowLetters +
                     foundYlw.map { this.word[it] }.toSet()
-            Log.e("TAGTAG", missingLetters.toString())
-            Log.e("TAGTAG", greenLetters.toString())
-            Log.e("TAGTAG", yellowLetters.toString())
 
             it.copy(keyboardColors = KeyboardState(greenLetters, yellowLetters, missingLetters))
         }

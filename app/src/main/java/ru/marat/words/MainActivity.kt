@@ -29,6 +29,7 @@ import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.marat.words.network.WordsService
+import ru.marat.words.ui.game_creator_screen.GameCreator
 import ru.marat.words.ui.game_creator_screen.NumberItem
 import ru.marat.words.ui.game_screen.GameScreen
 import ru.marat.words.ui.game_screen.GameViewModel
@@ -59,88 +60,9 @@ class MainActivity : ComponentActivity() {
                             wordsApi = WordsService(api, db.dao())
                         )
                     }))
-                else {
-                    Column(
-                        Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(
-                            10.dp,
-                            Alignment.CenterVertically
-                        ),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        val wordState = remember { mutableStateOf("") }
-                        val countState = remember { mutableIntStateOf(6) }
-                        val isError = remember { mutableStateOf(false) }
-                        val clipBoardManager = LocalClipboardManager.current
-                        TextField(value = wordState.value,
-                            onValueChange = {
-                                isError.value = false
-                                wordState.value = it
-                            },
-                            label = {
-                                Text(text = "Слово")
-                            },
-                            isError =isError.value,
-                            colors = TextFieldDefaults.textFieldColors(
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                errorIndicatorColor = Color.Transparent
-                            ),
-                            singleLine = true,
-                            maxLines = 1,
-                            shape = CircleShape,
-                            )
-//                        NumberItem(countState.value, onChange = {countState.value = it})
-                        val state = remember { mutableStateOf(false) }
-                        NumberItem(
-                            expanded = state.value,
-                            onDismiss = { state.value = false },
-                            onClick = { state.value = true },
-                            selected = countState.value,
-                            onChange = { countState.value = it })
-                        Button(onClick = {
-                            createGame(wordState.value, countState.intValue, clipboardManager = clipBoardManager, onError =  { isError.value = true })
-                        }) {
-                            Text("Скопировать")
-                        }
-                    }
-                }
+                else GameCreator()
             }
         }
-    }
-
-    @OptIn(ExperimentalTextApi::class)
-    @SuppressLint("ServiceCast")
-    private fun createGame(word: String, count: Int, onError: () -> Unit,clipboardManager: ClipboardManager){
-        val w = word.replace("\\s".toRegex(), "")
-        if (!w.checkLetters()) {
-            onError()
-            Toast.makeText(
-                this@MainActivity,
-                "Некорректные символы в слове",
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-
-        if (w.length !in 3..12) {
-            onError()
-            Toast.makeText(
-                this@MainActivity,
-                "В слове должно быть от 3 до 12 букв",
-                Toast.LENGTH_LONG
-            ).show()
-            return
-        }
-        val encrypted =
-            AESEncyption.encrypt(word)?.replace("/", "%2F")
-        clipboardManager.setText(AnnotatedString("poop.ru/${count}/$encrypted"))
-        Toast.makeText(
-            this@MainActivity,
-            "Скопировано",
-            Toast.LENGTH_LONG
-        ).show()
-
     }
 }
 
