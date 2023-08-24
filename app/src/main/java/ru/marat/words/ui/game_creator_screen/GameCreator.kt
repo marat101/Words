@@ -27,6 +27,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import ru.marat.words.ui.theme.LocalColors
 import ru.marat.words.ui.utils.AESEncyption
+import ru.marat.words.ui.utils.LinkData
 import ru.marat.words.ui.utils.checkLetters
 import ru.marat.words.ui.utils.withoutWhitespaces
 
@@ -111,8 +112,8 @@ private fun Context.createGame(word: String, count: Int, onError: () -> Unit, cl
         return
     }
     val encrypted =
-        AESEncyption.encrypt(w)?.replace("/", "%2F")
-    clipboardManager.setText(AnnotatedString("poop.ru/${count}/$encrypted"))
+        AESEncyption.encrypt(LinkData.encode(count,w))?.replace("/", "%2F")
+    clipboardManager.setText(AnnotatedString("poop.ru/$encrypted"))
     Toast.makeText(
         this,
         "Скопировано",

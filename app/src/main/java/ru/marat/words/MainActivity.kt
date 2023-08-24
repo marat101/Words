@@ -25,6 +25,7 @@ import ru.marat.words.ui.game_screen.GameViewModel
 import ru.marat.words.ui.theme.LocalColors
 import ru.marat.words.ui.theme.WordsTheme
 import ru.marat.words.ui.utils.AESEncyption
+import ru.marat.words.ui.utils.LinkData
 import ru.marat.words.ui.utils.withoutWhitespaces
 
 class MainActivity : ComponentActivity() {
@@ -32,10 +33,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val word = mutableStateOf("")
         val attempts = mutableStateOf<Int?>(null)
-        intent?.data?.pathSegments?.get(1)?.let {
-            word.value = (AESEncyption.decrypt(it) ?: "")
+        val linkData = kotlin.runCatching { LinkData.decode(AESEncyption.decrypt(intent?.data?.pathSegments?.get(0)!!)!!) }.getOrNull()
+        linkData?.let {
+            word.value = it.word
+            attempts.value = it.count
         }
-        attempts.value = intent?.data?.pathSegments?.get(0)?.toInt()
         val api = (applicationContext as App).api
         val db = (applicationContext as App).db
         val settings = (applicationContext as App).settings
