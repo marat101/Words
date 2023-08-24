@@ -1,16 +1,13 @@
 package ru.marat.words.ui.game_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import ru.marat.words.database.prefs.SettingsPrefs
 import ru.marat.words.network.WordsService
 import ru.marat.words.ui.utils.checkLetters
 import java.net.UnknownHostException
@@ -24,6 +21,11 @@ data class GameState(
     val dialog: Boolean = false,
     val notification: Boolean = false,
     val notificationText: String = "",
+
+
+    // for game save
+    val savedAnswer: String? = null,
+    val savedAttempts: Int? = null
 )
 
 data class KeyboardState(
@@ -42,11 +44,19 @@ data class Word(
 class GameViewModel(
     private val attempts: Int = 6,
     val word: String,
-    private val wordsApi: WordsService
+    private val wordsApi: WordsService,
+    private val settings: SettingsPrefs
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameState(length = word.length, words = createList()))
     val state = _state.asStateFlow()
     private var checkInProgress: Boolean = false
+
+
+    init {
+        settings.getGame()?.let {
+            _state.value = it
+        }
+    }
 
     fun onTextChange(str: String) {
         if (_state.value.gameOver) return
@@ -64,12 +74,15 @@ class GameViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _state.value.apply {
                 when {
-                    words[attempt].word == word -> _state.update {
-                        it.copy(
-                            gameOver = true,
-                            words = it.words.isGameOver(),
-                            attempt = it.attempt + 1
-                        )
+                    words[attempt].word == word -> {
+                        _state.update {
+                            it.copy(
+                                gameOver = true,
+                                words = it.words.isGameOver(),
+                                attempt = it.attempt + 1
+                            )
+                        }
+                        settings.saveGame(null)
                     }
 
                     words[attempt].word.length == word.length && attempt < attempts - 1 -> {
@@ -81,9 +94,12 @@ class GameViewModel(
                             ) {
                                 _state.update {
                                     val list = _state.value.words.toMutableList()
-                                    val item = list[it.attempt].copy(isUsed = true).setFieldsColors()
+                                    val item =
+                                        list[it.attempt].copy(isUsed = true).setFieldsColors()
                                     list[it.attempt] = item
-                                    it.copy(attempt = it.attempt + 1, words = list)
+                                    it.copy(attempt = it.attempt + 1, words = list).also { changedState ->
+                                        settings.saveGame(changedState.copy(savedAnswer = word, savedAttempts = attempts))
+                                    }
                                 }
                             } else {
                                 _state.update {
@@ -104,11 +120,11 @@ class GameViewModel(
                             checkInProgress = false
                         }
                     }
-
                     else -> {
                         _state.update {
                             val isgameover =
                                 !it.words.any { word -> word.word.isBlank() || word.word.length < this@GameViewModel.word.length }
+                            if (isgameover) settings.saveGame(null)
                             it.copy(
                                 words = if (isgameover) it.words.isGameOver() else it.words,
                                 gameOver = isgameover,
@@ -149,15 +165,17 @@ class GameViewModel(
             if (char == answer[index]) {
                 foundGrn.add(index)
                 checkedLetters.add(element = index)
-            } else {
-                answer.forEachIndexed { aIndex, aChar ->
-                    if (aChar == char && !checkedLetters.contains(element = aIndex)) {
-                        foundYlw.add(index)
-                        checkedLetters.add(aIndex)
-                    }
+            }
+        }
+        this.word.forEachIndexed { index, char ->
+            answer.forEachIndexed { aIndex, aChar ->
+                if (aChar == char && !checkedLetters.contains(element = aIndex)) {
+                    foundYlw.add(index)
+                    checkedLetters.add(element = aIndex)
                 }
             }
         }
+
         _state.update {
             val missingLetters = it.keyboardColors.missingLetters +
                     this.word.filterIndexed { index, _ -> !(foundGrn + foundYlw).contains(element = index) }

@@ -62,8 +62,10 @@ fun GameCreator(){
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent,
+                focusedLabelColor = Color(0xFFDCBC3D),
                 textColor = LocalColors.current.color1,
-                backgroundColor = LocalColors.current.color7
+                backgroundColor = LocalColors.current.color7,
+                cursorColor = Color(0xFFDCBC3D)
             ),
             singleLine = true,
             maxLines = 1,
